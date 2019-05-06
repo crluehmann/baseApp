@@ -1,0 +1,52 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+version: "3.1"
+services:
+
+    memcached:
+      image: memcached:alpine
+      container_name: php-fpm-memcached
+
+    mailhog:
+      image: mailhog/mailhog:latest
+      container_name: php-fpm-mailhog
+      ports:
+        - "8082:8025"
+
+    redis:
+      image: redis:alpine
+      container_name: php-fpm-redis
+
+    mysql:
+      image: mysql:8.0
+      container_name: php-fpm-mysql
+      working_dir: /application
+      volumes:
+        - .:/application
+      environment:
+        - MYSQL_ROOT_PASSWORD=noontar
+        - MYSQL_DATABASE=candrl
+        - MYSQL_USER=candrobit
+        - MYSQL_PASSWORD=Noontar2008#!
+      ports:
+        - "8083:3306"
+
+    webserver:
+      image: nginx:alpine
+      container_name: php-fpm-webserver
+      working_dir: /application
+      volumes:
+          - .:/application
+          - ./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      ports:
+       - "8081:80"
+
+    php-fpm:
+      build: phpdocker/php-fpm
+      container_name: php-fpm-php-fpm
+      working_dir: /application
+      volumes:
+        - .:/application
+        - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/7.3/fpm/conf.d/99-overrides.ini
+

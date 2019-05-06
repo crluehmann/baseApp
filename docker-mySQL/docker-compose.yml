@@ -1,0 +1,66 @@
+version: '3.3'
+
+services:
+
+  nginx: 
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+     - etc:/etc
+    #  - certificates:/etc/letsencrypt/
+    #env_file:
+    #  - ./common.env
+    #environment:
+    #  - ENV=development
+    #  - APPLICATION_URL=http://domain
+    ports:
+      - 80:80
+      - 443:443
+
+  certbot:
+    image: certbot/certbot
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: somewordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+    - PMA_ARBITRARY=1
+    restart: always
+    ports:
+    - 8080:80
+    volumes:
+    - /sessions
+
+  wordpress:
+    depends_on:
+      - mysql
+    image: wordpress:latest
+    ports:
+      - "8000:80"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+
+volumes:
+  #common.env: {}
+  certificates:
+  mysql_data: {}
+  sessions: {}
+  nginx: {}
+  etc: {}
